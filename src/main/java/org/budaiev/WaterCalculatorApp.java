@@ -39,15 +39,37 @@ public class WaterCalculatorApp {
             return 0;
         }
 
-        while (cavityLeftColumn < landscape.length - 2) {
-            int cavityRightColumn = getFirstGreaterOrMaxColumn(landscape, cavityLeftColumn);
-            if (cavityRightColumn == -1) {
-                break;
+        //from left to right
+        int blocksInCavityCount = 0;
+        for (int i = cavityLeftColumn + 1; i < landscape.length; i++) {
+            if (landscape[i] > landscape[cavityLeftColumn]) {
+                int distanceBetweenColumns = getDistanceBetweenColumns(cavityLeftColumn, i);
+                totalWaterAmount += (long) landscape[cavityLeftColumn] * distanceBetweenColumns
+                        - blocksInCavityCount;
+                blocksInCavityCount = 0;
+                cavityLeftColumn = i;
+            } else {
+                blocksInCavityCount += landscape[i];
             }
+        }
 
-            totalWaterAmount += calculateWaterBetweenColumns(landscape, cavityLeftColumn,
-                    cavityRightColumn);
-            cavityLeftColumn = cavityRightColumn;
+        int cavityRightColumn = getLastNonZeroColumnIndex(landscape);
+        if (cavityRightColumn == -1) {
+            return 0;
+        }
+
+        // from right to left
+        blocksInCavityCount = 0;
+        for (int i = cavityRightColumn - 1; i >= 0; i--) {
+            if (landscape[i] >= landscape[cavityRightColumn]) {
+                int distanceBetweenColumns = getDistanceBetweenColumns(i, cavityRightColumn);
+                totalWaterAmount += (long) landscape[cavityRightColumn] * distanceBetweenColumns
+                        - blocksInCavityCount;
+                blocksInCavityCount = 0;
+                cavityRightColumn = i;
+            } else {
+                blocksInCavityCount += landscape[i];
+            }
         }
 
         return totalWaterAmount;
@@ -62,31 +84,13 @@ public class WaterCalculatorApp {
         return -1;
     }
 
-    private static int getFirstGreaterOrMaxColumn(int[] landscape, int startIndex) {
-        int maxColumnIndex = -1;
-        for (int i = startIndex + 1; i < landscape.length; i++) {
-            if (landscape[i] > landscape[startIndex]) {
+    private static int getLastNonZeroColumnIndex(int[] landscape) {
+        for (int i = landscape.length - 1; i >= 0; i--) {
+            if (landscape[i] > 0) {
                 return i;
             }
-            if (maxColumnIndex == -1) {
-                maxColumnIndex = i;
-            } else if (landscape[maxColumnIndex] <= landscape[i]) {
-                maxColumnIndex = i;
-            }
         }
-        return maxColumnIndex;
-    }
-
-    private static long calculateWaterBetweenColumns(int[] landscape, int left, int right) {
-        int minBorderColumnHeight = Math.min(landscape[left], landscape[right]);
-
-        int blocksInCavityCount = 0;
-        for (int i = left + 1; i < right; i++) {
-            blocksInCavityCount += Math.min(minBorderColumnHeight, landscape[i]);
-        }
-
-        return (long) minBorderColumnHeight * getDistanceBetweenColumns(left, right)
-                - blocksInCavityCount;
+        return -1;
     }
 
     private static int getDistanceBetweenColumns(int column1, int column2) {

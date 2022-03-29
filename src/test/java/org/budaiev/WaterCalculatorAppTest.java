@@ -105,7 +105,7 @@ class WaterCalculatorAppTest {
     }
 
     @Test
-    void calculateWaterAmount_Cavity_0() {
+    void calculateWaterAmount_Cavity_9() {
         int[] landscape = {3, 2, 1, 0, 1, 2, 3};
         Assertions.assertEquals(9, calculateWaterAmount(landscape));
     }
